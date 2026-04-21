@@ -16,7 +16,7 @@ query = st.text_input("Enter your question:")
 if st.button("Ask"):
 
     if query.strip():
-
+ 
         with st.spinner("Thinking..."):
 
             response = requests.post(
@@ -26,5 +26,18 @@ if st.button("Ask"):
 
             data = response.json()
 
+            if "error" in data:
+                st.error(data["error"])
+            else:
+                st.success(data["answer"])
+
             st.subheader("Answer:")
-            st.success(data["answer"])
+            
+
+            st.write("### Priority :", data["priority"])
+            st.write("### Category :", data["category"])
+            st.write("### Sentiment :", data["sentiment"])
+            
+            st.write("### Escalation Needed :", data["escalation"])
+            
+            

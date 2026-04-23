@@ -9,19 +9,24 @@ def detect_priority(query):
         "not delivered",
         "wrong item",
         "cancelled"
+        "worst",
+        "angry",
+        "fraud"
+    ]
+
+    medium_words = [
+        "track",
+        "delivery",
+        "delay",
+        "payment",
+        "when"
     ]
 
     for word in high_words:
         if word in q:
             return "High"
         
-    medium_words = [
-        "track",
-        "delivery",
-        "payment"
-
-    ]   
-
+    
     for word in medium_words:
         if word in q:
             return "Medium"
@@ -52,20 +57,31 @@ def detect_sentiment(query):
     q = query.lower()
 
     negative_words = [
-        "angry",
-        "bad",
-        "late",
         "missing",
+        "late",
+        "angry",
         "worst",
-        "refund",
+        "bad",
+        "problem",
         "issue",
-        "problem"
+        "refund not received",
+        "damaged"
     ]
+
+    positive_words = [
+        "thanks",
+        "good","great"
+    ]
+
 
     for word in negative_words:
         if word in q:
             return "Negative"
-        
+
+    for words in positive_words:
+        if word in q:
+            return "Positive"
+            
         return "Neutral"
     
 def escalation_needed(priority, sentiment):

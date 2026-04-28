@@ -8,6 +8,9 @@ An AI-powered support automation system using RAG and NLP.
 - Ticket routing
 - Sentiment analysis
 
+![App Screenshot](assets/ss1.png)
+![App Screenshot](assets/ss2.png)
+
 ## Tech Stack
 Python, FastAPI, Streamlit, LangChain, FAISS
 

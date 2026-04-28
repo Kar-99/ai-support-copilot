@@ -1,5 +1,11 @@
 import streamlit as st
-import requests
+from src.rag_pipeline import build_vector_store, ask_llm
+from src.classifier import (
+    detect_priority,
+    detect_category,
+    detect_sentiment,
+    escalation_needed
+)
 
 st.set_page_config(
     page_title="AI Support Copilot",
@@ -7,7 +13,14 @@ st.set_page_config(
     layout="wide"
 )
 
-# Session state for chat history
+# Build vector store once
+@st.cache_resource
+def initialize():
+    build_vector_store()
+
+initialize()
+
+# Session state
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -20,38 +33,37 @@ with st.sidebar:
 
     st.markdown("---")
     st.write("### About")
-    st.write("AI-powered customer support assistant using RAG + LLM.")
+    st.write("AI-powered customer support assistant using RAG + Groq LLM.")
 
-# Main Title
+# Main UI
 st.title("🤖 Blinkit AI Support Copilot")
 st.caption("Ask about refunds, shipping, delivery, cancellations.")
 
-# Input
 query = st.text_input("Enter your question:")
 
 if st.button("Ask"):
 
     if query.strip():
 
-        response = requests.post(
-            "http://127.0.0.1:8000/ask",
-            json={"query": query}
-        )
+        with st.spinner("Thinking..."):
 
-        data = response.json()
+            answer = ask_llm(query)
 
-        st.session_state.messages.append(
-            {
+            priority = detect_priority(query)
+            category = detect_category(query)
+            sentiment = detect_sentiment(query)
+            escalation = escalation_needed(priority, sentiment)
+
+            st.session_state.messages.append({
                 "query": query,
-                "answer": data["answer"],
-                "priority": data["priority"],
-                "category": data["category"],
-                "sentiment": data["sentiment"],
-                "escalation": data["escalation"]
-            }
-        )
+                "answer": answer,
+                "priority": priority,
+                "category": category,
+                "sentiment": sentiment,
+                "escalation": escalation
+            })
 
-# Chat History
+# Chat history
 for chat in reversed(st.session_state.messages):
 
     st.markdown("---")

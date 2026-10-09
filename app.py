@@ -36,7 +36,7 @@ with st.sidebar:
     st.write("AI-powered customer support assistant using RAG + Groq LLM.")
 
 # Main UI
-st.title("🤖 Blinkit AI Support Copilot")
+st.title("🤖 AI Support Copilot")
 st.caption("Ask about refunds, shipping, delivery, cancellations.")
 
 query = st.text_input("Enter your question:")

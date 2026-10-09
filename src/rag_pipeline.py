@@ -8,6 +8,16 @@ from sentence_transformers import SentenceTransformer
 
 load_dotenv()
 
+PRIMARY_MODEL = os.getenv(
+    "GROQ_MODEL",
+    "openai/gpt-oss-120b"
+)
+
+FALLBACK_MODEL = os.getenv(
+    "GROQ_FALLBACK_MODEL",
+    "openai/gpt-oss-20b"
+)
+
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
@@ -83,12 +93,34 @@ Customer Query:
 Answer:
 """
 
-    response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=[
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0.3
-    )
+    try:
+        response = client.chat.completions.create(
+            model=PRIMARY_MODEL,
+            messages=[
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.3
+        )
 
-    return response.choices[0].message.content
+        return response.choices[0].message.content
+
+    except Exception as e:
+
+        if getattr(e, "status_code", None) == 404:
+
+            print(
+                f"Primary model '{PRIMARY_MODEL}' is unavailable. "
+                f"Trying fallback model '{FALLBACK_MODEL}'."
+            )
+
+            response = client.chat.completions.create(
+                model=FALLBACK_MODEL,
+                messages=[
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.3
+            )
+
+            return response.choices[0].message.content
+
+        raise
